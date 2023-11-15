@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYCPrototype</title>
+    <!-- <script src="/jwellery/connecttometamask.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script> 
+    <script>
+        async function connectToMetaMask() {
+        let web3;
+
+        // Check if MetaMask is available
+        if (typeof window.ethereum !== 'undefined') {
+            // Use MetaMask's provider
+            web3 = new Web3(window.ethereum);
+
+            try {
+                // Request account access if needed
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                console.log('Connected to MetaMask');
+            } catch (error) {
+                console.error('User denied account access');
+            }
+        } else {
+            // Fallback to a local provider if MetaMask is not available
+            const provider = new Web3.providers.HttpProvider('http://127.0.0.1:7545');
+            web3 = new Web3(provider);
+            console.log('Connected to local provider');
+        }
+
+        // Replace with your contract address and ABI
+        const contractAddress = "0x5c40F19866956e0aBfEf4e812D12a6C45e3176d7";
+        const contractABI = [
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "customerAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bool",
+              "name": "isVerified",
+              "type": "bool"
+            }
+          ],
+          "name": "KYCVerified",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "admin",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "constant": true
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "customers",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "customerAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "documentHash",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isVerified",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "constant": true
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "_documentHash",
+              "type": "string"
+            }
+          ],
+          "name": "submitKYC",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_customerAddress",
+              "type": "address"
+            }
+          ],
+          "name": "verifyKYC",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_customerAddress",
+              "type": "address"
+            }
+          ],
+          "name": "getKYCStatus",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "constant": true
+        }
+      ]; // Replace with your actual ABI
+        const kycContract = new web3.eth.Contract(contractABI, contractAddress);
+
+        window.web3 = web3;
+        window.kycContract = kycContract;
+    }
+        async function submitKYC() {
+            const customerAddress = document.getElementById("customerAddress").value;
+            const accounts = await web3.eth.requestAccounts();
+            const sender = accounts[0];
+
+            try {
+                await kycContract.methods.submitKYC("Customer Name", "Document Hash").send({ from: sender });
+                alert("KYC submitted successfully!");
+            } catch (error) {
+                console.error(error);
+                alert("Failed to submit KYC.");
+            }
+        }
+
+        async function verifyKYC() {
+            const verifyAddress = document.getElementById("verifyAddress").value;
+            const accounts = await web3.eth.requestAccounts();
+            const sender = accounts[0];
+
+            try {
+                await kycContract.methods.verifyKYC(verifyAddress).send({ from: sender });
+                alert("KYC verified successfully!");
+            } catch (error) {
+                console.error(error);
+                alert("Failed to verify KYC.");
+            }
+        }
+
+        async function checkKYCStatus() {
+            const checkStatusAddress = document.getElementById("checkStatusAddress").value;
+
+            try {
+                const isVerified = await kycContract.methods.getKYCStatus(checkStatusAddress).call();
+                alert(`KYC Status: ${isVerified ? "Verified" : "Not Verified"}`);
+            } catch (error) {
+                console.error(error);
+                alert("Failed to check KYC status.");
+            }
+        }
+
+    // Call the async function
+    connectToMetaMask();
+    </script>
+
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+}
+
+label {
+    display: block;
+    margin: 10px 0;
+}
+
+input {
+    width: 300px;
+    padding: 8px;
+    margin: 5px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+hr {
+    border: 1px solid #ddd;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+    </style>
+</head>
+<body>
+    <h1>KYC Prototype</h1>
+
+    <label for="customerAddress">Customer Address:</label>
+    <input type="text" id="customerAddress" placeholder="Enter customer address">
+    <button onclick="submitKYC()">Submit KYC</button>
+
+    <hr>
+
+    <label for="verifyAddress">Verify Customer Address:</label>
+    <input type="text" id="verifyAddress" placeholder="Enter customer address">
+    <button onclick="verifyKYC()">Verify KYC</button>
+
+    <hr>
+
+    <label for="checkStatusAddress">Check KYC Status:</label>
+    <input type="text" id="checkStatusAddress" placeholder="Enter customer address">
+    <button onclick="checkKYCStatus()">Check KYC Status</button>
+</body>
+</html>
+
+
+
+
+
+
