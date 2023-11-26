@@ -9,27 +9,19 @@
     <script>
         async function connectToMetaMask() {
         let web3;
-
-        // Check if MetaMask is available
         if (typeof window.ethereum !== 'undefined') {
-            // Use MetaMask's provider
             web3 = new Web3(window.ethereum);
-
             try {
-                // Request account access if needed
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
                 console.log('Connected to MetaMask');
             } catch (error) {
                 console.error('User denied account access');
             }
         } else {
-            // Fallback to a local provider if MetaMask is not available
             const provider = new Web3.providers.HttpProvider('http://127.0.0.1:7545');
             web3 = new Web3(provider);
             console.log('Connected to local provider');
         }
-
-        // Replace with your contract address and ABI
         const contractAddress = "0x5c40F19866956e0aBfEf4e812D12a6C45e3176d7";
         const contractABI = [
         {
@@ -156,7 +148,7 @@
           "type": "function",
           "constant": true
         }
-      ]; // Replace with your actual ABI
+      ];
         const kycContract = new web3.eth.Contract(contractABI, contractAddress);
 
         window.web3 = web3;
@@ -201,8 +193,6 @@
                 alert("Failed to check KYC status.");
             }
         }
-
-    // Call the async function
     connectToMetaMask();
     </script>
 
@@ -272,9 +262,3 @@ hr {
     <button onclick="checkKYCStatus()">Check KYC Status</button>
 </body>
 </html>
-
-
-
-
-
-
